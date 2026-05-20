@@ -83,20 +83,23 @@ jest.mock(
 /**
  * Render the Edit component with given consentCategory attribute.
  */
-function renderEdit( consentCategory = '' ) {
+async function renderEdit( consentCategory = '' ) {
 	const setAttributes = jest.fn();
-	const { rerender, container } = render(
-		<Edit
-			attributes={ { consentCategory } }
-			setAttributes={ setAttributes }
-		/>
-	);
+	let rerender, container;
+	await act( async () => {
+		( { rerender, container } = render(
+			<Edit
+				attributes={ { consentCategory } }
+				setAttributes={ setAttributes }
+			/>
+		) );
+	} );
 
 	/**
 	 * Re-render with a new consentCategory value (simulates attribute change).
 	 */
-	function changeCategory( newCategory ) {
-		act( () => {
+	async function changeCategory( newCategory ) {
+		await act( async () => {
 			rerender(
 				<Edit
 					attributes={ { consentCategory: newCategory } }
@@ -106,7 +109,10 @@ function renderEdit( consentCategory = '' ) {
 		} );
 	}
 
-	return { container, setAttributes, changeCategory };
+	// The component now returns a Fragment — the styled canvas div is the last child.
+	const wrapper = container.querySelector( '[style]' );
+
+	return { container, wrapper, setAttributes, changeCategory };
 }
 
 // ---------------------------------------------------------------------------
@@ -114,38 +120,34 @@ function renderEdit( consentCategory = '' ) {
 // ---------------------------------------------------------------------------
 
 describe( 'AC1 / AC6 — empty consentCategory', () => {
-	test( 'wrapper has a 2px solid amber (#dba617) border', () => {
-		const { container } = renderEdit( '' );
-		const wrapper = container.firstChild;
+	test( 'wrapper has a 2px solid amber (#dba617) border', async () => {
+		const { wrapper } = await renderEdit( '' );
 
 		expect( wrapper.style.border ).toBe( '2px solid #dba617' );
 	} );
 
-	test( 'wrapper has 4px border-radius', () => {
-		const { container } = renderEdit( '' );
-		const wrapper = container.firstChild;
+	test( 'wrapper has 4px border-radius', async () => {
+		const { wrapper } = await renderEdit( '' );
 
 		expect( wrapper.style.borderRadius ).toBe( '4px' );
 	} );
 
-	test( 'wrapper has 16px padding', () => {
-		const { container } = renderEdit( '' );
-		const wrapper = container.firstChild;
+	test( 'wrapper has 16px padding', async () => {
+		const { wrapper } = await renderEdit( '' );
 
 		expect( wrapper.style.padding ).toBe( '16px' );
 	} );
 
-	test( 'label reads "Consent Gate: No category selected"', () => {
-		renderEdit( '' );
+	test( 'label reads "Consent Gate: No category selected"', async () => {
+		await renderEdit( '' );
 
 		expect(
 			screen.getByText( 'Consent Gate: No category selected' )
 		).toBeTruthy();
 	} );
 
-	test( 'no background fill (background or backgroundColor is absent / empty)', () => {
-		const { container } = renderEdit( '' );
-		const wrapper = container.firstChild;
+	test( 'no background fill (background or backgroundColor is absent / empty)', async () => {
+		const { wrapper } = await renderEdit( '' );
 
 		// background and backgroundColor must not be set to any solid colour
 		const bg = wrapper.style.background || wrapper.style.backgroundColor;
@@ -158,21 +160,20 @@ describe( 'AC1 / AC6 — empty consentCategory', () => {
 // ---------------------------------------------------------------------------
 
 describe( 'AC2 / AC7 — consentCategory set', () => {
-	test( 'wrapper has a 2px solid grey (#8c8f94) border', () => {
-		const { container } = renderEdit( 'marketing' );
-		const wrapper = container.firstChild;
+	test( 'wrapper has a 2px solid grey (#8c8f94) border', async () => {
+		const { wrapper } = await renderEdit( 'marketing' );
 
 		expect( wrapper.style.border ).toBe( '2px solid #8c8f94' );
 	} );
 
-	test( 'label contains the category value', () => {
-		renderEdit( 'marketing' );
+	test( 'label contains the category value', async () => {
+		await renderEdit( 'marketing' );
 
 		expect( screen.getByText( 'Consent Gate: marketing' ) ).toBeTruthy();
 	} );
 
-	test( 'label format is "Consent Gate: {category}"', () => {
-		renderEdit( 'analytics' );
+	test( 'label format is "Consent Gate: {category}"', async () => {
+		await renderEdit( 'analytics' );
 
 		expect( screen.getByText( 'Consent Gate: analytics' ) ).toBeTruthy();
 	} );
@@ -183,8 +184,8 @@ describe( 'AC2 / AC7 — consentCategory set', () => {
 // ---------------------------------------------------------------------------
 
 describe( 'AC3 / AC8 — InnerBlocks allowedBlocks', () => {
-	test( 'InnerBlocks receives an allowedBlocks prop', () => {
-		renderEdit( '' );
+	test( 'InnerBlocks receives an allowedBlocks prop', async () => {
+		await renderEdit( '' );
 		const innerBlocks = screen.getByTestId( 'inner-blocks' );
 		const raw = innerBlocks.getAttribute( 'data-allowed-blocks' );
 
@@ -194,8 +195,8 @@ describe( 'AC3 / AC8 — InnerBlocks allowedBlocks', () => {
 		expect( Array.isArray( parsed ) ).toBe( true );
 	} );
 
-	test( 'allowedBlocks does NOT include "dynamo/consent-gate"', () => {
-		renderEdit( '' );
+	test( 'allowedBlocks does NOT include "dynamo/consent-gate"', async () => {
+		await renderEdit( '' );
 		const innerBlocks = screen.getByTestId( 'inner-blocks' );
 		const parsed = JSON.parse(
 			innerBlocks.getAttribute( 'data-allowed-blocks' )
@@ -210,8 +211,8 @@ describe( 'AC3 / AC8 — InnerBlocks allowedBlocks', () => {
 // ---------------------------------------------------------------------------
 
 describe( 'AC4 — InnerBlocks placeholder', () => {
-	test( 'InnerBlocks receives placeholder "Add consent-gated content"', () => {
-		renderEdit( '' );
+	test( 'InnerBlocks receives placeholder "Add consent-gated content"', async () => {
+		await renderEdit( '' );
 		const innerBlocks = screen.getByTestId( 'inner-blocks' );
 
 		expect( innerBlocks.getAttribute( 'data-placeholder' ) ).toBe(
@@ -225,28 +226,27 @@ describe( 'AC4 — InnerBlocks placeholder', () => {
 // ---------------------------------------------------------------------------
 
 describe( 'AC5 — Reactive updates when consentCategory attribute changes', () => {
-	test( 'switches from amber to grey border when category is set', () => {
-		const { container, changeCategory } = renderEdit( '' );
-		const wrapper = container.firstChild;
+	test( 'switches from amber to grey border when category is set', async () => {
+		const { wrapper, changeCategory } = await renderEdit( '' );
 
 		// Initial state: amber
 		expect( wrapper.style.border ).toBe( '2px solid #dba617' );
 
 		// Change attribute
-		changeCategory( 'functional' );
+		await changeCategory( 'functional' );
 
 		// After change: grey
 		expect( wrapper.style.border ).toBe( '2px solid #8c8f94' );
 	} );
 
-	test( 'updates label from "No category selected" to the category name', () => {
-		const { changeCategory } = renderEdit( '' );
+	test( 'updates label from "No category selected" to the category name', async () => {
+		const { changeCategory } = await renderEdit( '' );
 
 		expect(
 			screen.getByText( 'Consent Gate: No category selected' )
 		).toBeTruthy();
 
-		changeCategory( 'functional' );
+		await changeCategory( 'functional' );
 
 		expect( screen.getByText( 'Consent Gate: functional' ) ).toBeTruthy();
 		expect(
@@ -254,15 +254,14 @@ describe( 'AC5 — Reactive updates when consentCategory attribute changes', () 
 		).toBeNull();
 	} );
 
-	test( 'switches from grey back to amber border when category is cleared', () => {
-		const { container, changeCategory } = renderEdit( 'marketing' );
-		const wrapper = container.firstChild;
+	test( 'switches from grey back to amber border when category is cleared', async () => {
+		const { wrapper, changeCategory } = await renderEdit( 'marketing' );
 
 		// Initial state: grey (category set)
 		expect( wrapper.style.border ).toBe( '2px solid #8c8f94' );
 
 		// Clear attribute
-		changeCategory( '' );
+		await changeCategory( '' );
 
 		// After clearing: amber
 		expect( wrapper.style.border ).toBe( '2px solid #dba617' );
