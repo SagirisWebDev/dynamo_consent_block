@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+    bootstrap="tests/bootstrap.php"
+    colors="true"
+    cacheResultFile=".phpunit.result.cache"
+    convertErrorsToExceptions="true"
+    convertNoticesToExceptions="true"
+    convertWarningsToExceptions="true"
+    convertDeprecationsToExceptions="true"
+    beStrictAboutTestsThatDoNotTestAnything="false"
+    failOnWarning="true"
+    failOnRisky="true"
+    verbose="true"
+>
+    <testsuites>
+        <testsuite name="dynamo-consent-gate">
+            <directory suffix="Test.php">./tests</directory>
+        </testsuite>
+    </testsuites>
+</phpunit>

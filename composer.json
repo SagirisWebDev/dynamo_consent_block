@@ -1,0 +1,24 @@
+{
+    "name": "sagiriswebdev/dynamo-consent-gate",
+    "description": "Companion plugin that provides the dynamo/consent-gate Gutenberg block for the Dynamo theme.",
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0-or-later",
+    "require": {
+        "php": ">=8.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.6",
+        "brain/monkey": "^2.6"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Dynamo\\ConsentGate\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "scripts": {
+        "test": "phpunit"
+    }
+}

@@ -1,0 +1,18 @@
+{
+    "name": "dynamo-consent-gate",
+    "version": "1.0.0",
+    "description": "WordPress plugin for the dynamo/consent-gate block",
+    "private": true,
+    "scripts": {
+        "build": "wp-scripts build",
+        "start": "wp-scripts start",
+        "test": "composer run test",
+        "typecheck": "wp-scripts check-engines"
+    },
+    "dependencies": {
+        "@wordpress/icons": "*"
+    },
+    "devDependencies": {
+        "@wordpress/scripts": "^30.0.0"
+    }
+}
