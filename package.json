@@ -7,6 +7,9 @@
         "build": "wp-scripts build",
         "start": "wp-scripts start",
         "test": "composer run test",
+        "test:js": "wp-scripts test-unit-js",
+        "test:browser": "playwright test",
+        "test:browser:headed": "playwright test --headed",
         "typecheck": "wp-scripts check-engines"
     },
     "dependencies": {

@@ -1,1 +1,5 @@
 .agents
+.swd-harness
+node_modules
+.claude
+vendor
