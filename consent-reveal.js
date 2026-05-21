@@ -2,17 +2,24 @@
     'use strict';
 
     function revealForCategory(category) {
-        document.querySelectorAll('.dynamo-consent-gate[data-consent-category="' + category + '"]')
-            .forEach(function (gate) {
-                gate.style.display = '';
+        document.querySelectorAll('.dynamo-consent-placeholder[data-category="' + category + '"]')
+            .forEach(function (placeholder) {
+                var embedHtml = placeholder.getAttribute('data-embed');
+                if (!embedHtml || !placeholder.parentNode) { return; }
+                var tmp = document.createElement('div');
+                tmp.innerHTML = embedHtml;
+                var embed = tmp.firstChild;
+                if (embed) {
+                    placeholder.parentNode.replaceChild(embed, placeholder);
+                }
             });
     }
 
     function checkInitialConsent() {
-        document.querySelectorAll('.dynamo-consent-gate[data-consent-category]')
+        document.querySelectorAll('.dynamo-consent-placeholder[data-category]')
             .forEach(function (el) {
-                var category = (el.getAttribute('data-consent-category') || '').toLowerCase();
-                if (!category) { el.style.display = ''; return; }
+                var category = el.getAttribute('data-category');
+                if (!category) { return; }
                 var complianzGranted = typeof window.cmplz_has_consent === 'function' &&
                     window.cmplz_has_consent(category);
                 var borlabsGranted = window.BorlabsCookie &&
@@ -26,7 +33,7 @@
 
     document.addEventListener('cmplz_status_change', function (e) {
         if (e.detail && e.detail.category && e.detail.value === 'allow') {
-            revealForCategory(e.detail.category.toLowerCase());
+            revealForCategory(e.detail.category);
         }
     });
 
@@ -34,9 +41,9 @@
         if (!window.BorlabsCookie || typeof window.BorlabsCookie.checkCookieConsent !== 'function') {
             return;
         }
-        document.querySelectorAll('.dynamo-consent-gate[data-consent-category]')
+        document.querySelectorAll('.dynamo-consent-placeholder[data-category]')
             .forEach(function (el) {
-                var category = (el.getAttribute('data-consent-category') || '').toLowerCase();
+                var category = el.getAttribute('data-category');
                 if (category && window.BorlabsCookie.checkCookieConsent(category)) {
                     revealForCategory(category);
                 }

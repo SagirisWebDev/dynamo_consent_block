@@ -9,7 +9,12 @@ wp_enqueue_script(
     true
 );
 
-$category = esc_attr($attributes['consentCategory'] ?? '');
+$category = strtolower(esc_attr($attributes['consentCategory'] ?? ''));
+
+if ($category === '') {
+    echo $content;
+    return;
+}
 ?>
 <div class="dynamo-consent-gate" style="display:none" data-consent-category="<?php echo $category; ?>">
     <?php echo $content; ?>

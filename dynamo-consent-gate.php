@@ -15,8 +15,11 @@ declare(strict_types=1);
 define('DYNAMO_CONSENT_GATE_LOADED', true);
 define('DYNAMO_CONSENT_GATE_VERSION', '1.0.0');
 define('DYNAMO_CONSENT_GATE_URL', plugin_dir_url(__FILE__));
+define('DYNAMO_CONSENT_GATE_PATH', plugin_dir_path(__FILE__));
 
 require_once __DIR__ . '/includes/admin-notice.php';
+require_once __DIR__ . '/includes/class-dynamo-consent-gate-placeholder.php';
+require_once __DIR__ . '/includes/class-dynamo-consent-gate-integration.php';
 
 function dynamo_consent_gate_register(): void {
     register_block_type(__DIR__ . '/build');
@@ -24,3 +27,4 @@ function dynamo_consent_gate_register(): void {
 
 add_action('init', 'dynamo_consent_gate_register');
 add_action('admin_notices', 'dynamo_consent_gate_admin_notice');
+Dynamo_Consent_Gate_Integration::boot();
